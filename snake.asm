@@ -26,12 +26,12 @@ start:
     
 main_loop: 
 
-   
+     
     
 LOOP1:  
  
     call PRA 
-
+    call PGREENBOX
     call MOVESNAKE
     call WAITFUNC
    
@@ -151,18 +151,19 @@ PREDBOX:
 
 ADDB:
     
-    pop ax        ; pop ret
-    pop cx        ; cx is the length
-    pop dx        ; dx is the location of the tail
+    pop ax        ; pop ret of addb to go back to wait func
+    pop dx        ; pop the ret of waitfunc on dx
+    pop cx        ; pop length on cx
    
-    inc cx
-    mov bx,0
+    inc cx        ;inc length 
 
-    push dx
-    push cx
-    push ax  
+
+    push cx       ; push length
+    push dx       ; push ret of waitfunc
+     
+    push ax       ; push ret of addb
     
-    ret
+    ret           ; stack minus 1 element
     
 MOVESNAKE:
     
@@ -181,7 +182,7 @@ MOVESNAKE:
     mov bh,0
 
     int 10h
- 
+   
 
     inc dl   
     pop ax
@@ -206,28 +207,62 @@ WAITFUNC:
     
     
     mov ah,86h       ;call interupt to wait for 0.1sec
-    mov cx,1h
-    mov dx,86A0h
+    mov cx, 0x01h
+    mov dx, 0x6A0h
     
     int 15h
     
     inc bx           ;increment times called
-    
     cmp bx,10d
-    je ADDB   
+    je addbcall:   
+    return1:
+   
+    pop ax           ;pop ret of waitfunc
+    pop cx           ;pop lenght
+    pop dx           ;pop locaiton
     
-    pop ax           ;pop the stack to insert the counter at the bottom
-    pop cx
-    pop dx
-    
-    push bx          ;push everything in again
+    push bx          ;push everything in again while bx is the times called
     push dx
     push cx
     push ax  
     
+    cmp bx,10d
+    je printred
+    return2:
+    cmp bx,20d
+    je printgreen
+    return3:
+    
+    
+    
     ret
     
+
+addbcall:
     
+    call ADDB
+    jmp return1  
+    
+printgreen:
+    call PGREENBOX 
+    pop ax        ; pop ret
+    pop cx        ; cx is the length
+    pop dx        ; dx is the location of the tail   
+    pop bx        ; times we called the function  first time zero
+    
+    mov bx,0
+    
+    push bx          ;push everything in again while bx is the times called
+    push dx
+    push cx
+    push ax
+    jmp return2
+    
+printred:
+    call PREDBOX    
+    
+    jmp return3  
+     
 end:
 ends
 
