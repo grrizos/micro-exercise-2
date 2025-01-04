@@ -67,7 +67,7 @@ again1:
     mov ah,0Ah    ;print the A representing the road 
     mov al,'A'
     mov bh,0
-    mov cx,27h
+    mov cx,28h
     int 10h   
     
     pop cx        ;use cx first print the upper road and then the lower one
